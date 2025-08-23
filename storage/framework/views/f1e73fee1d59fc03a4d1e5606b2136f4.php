@@ -1,0 +1,97 @@
+<?php $__env->startSection('content'); ?>
+<div class="container mx-auto px-4 py-6">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+        <h1 class="text-2xl font-bold text-gray-800">Daftar Produk</h1>
+        <a href="<?php echo e(route('admin.products.create')); ?>" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition flex items-center gap-2">
+            <i class="fas fa-plus"></i>
+            <span>Tambah Produk</span>
+        </a>
+    </div>
+
+    <?php if(session('success')): ?>
+        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+            <?php echo e(session('success')); ?>
+
+        </div>
+    <?php endif; ?>
+
+    <div class="bg-white shadow rounded-lg overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Cover</th>
+                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Judul</th>
+                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Penulis</th>
+                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Harga</th>
+                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Stok</th>
+                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Aksi</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                <?php $__empty_1 = true; $__currentLoopData = $products; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $product): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+                <tr class="hover:bg-gray-50">
+                    <td class="px-4 py-4">
+                        <div class="flex-shrink-0 h-16 w-12 overflow-hidden rounded">
+                            <img src="<?php echo e($product->foto_url); ?>" alt="<?php echo e($product->judul); ?>" class="h-full w-full object-cover">
+                        </div>
+                    </td>
+                    <td class="px-4 py-4">
+                        <div class="text-sm font-medium text-gray-900 max-w-xs truncate"><?php echo e($product->judul); ?></div>
+                    </td>
+                    <td class="px-4 py-4">
+                        <div class="text-sm text-gray-500 max-w-xs truncate"><?php echo e($product->penulis); ?></div>
+                    </td>
+                    <td class="px-4 py-4">
+                        <div class="text-sm text-gray-900">Rp <?php echo e(number_format($product->harga, 0, ',', '.')); ?></div>
+                    </td>
+                    <td class="px-4 py-4">
+                        <span class="px-2 py-1 text-xs font-semibold rounded-full
+                            <?php echo e($product->stok > 5 ? 'bg-green-100 text-green-800' : ($product->stok > 0 ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800')); ?>">
+                            <?php echo e($product->stok); ?>
+
+                        </span>
+                    </td>
+                    <td class="px-4 py-4">
+                        <div class="flex items-center gap-3">
+                            <a href="<?php echo e(route('admin.products.edit', $product->id)); ?>"
+                               class="text-blue-600 hover:text-blue-900"
+                               title="Edit">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <a href="<?php echo e(route('admin.products.show', $product->id)); ?>"
+                               class="text-green-600 hover:text-green-900"
+                               title="Detail">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            <form action="<?php echo e(route('admin.products.destroy', $product->id)); ?>" method="POST" class="inline">
+                                <?php echo csrf_field(); ?>
+                                <?php echo method_field('DELETE'); ?>
+                                <button type="submit"
+                                        class="text-red-600 hover:text-red-900"
+                                        title="Hapus"
+                                        onclick="return confirm('Apakah Anda yakin ingin menghapus produk ini?')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
+                <tr>
+                    <td colspan="6" class="px-6 py-4 text-center text-sm text-gray-500">
+                        Tidak ada produk ditemukan.
+                    </td>
+                </tr>
+                <?php endif; ?>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="mt-4">
+        <?php echo e($products->links()); ?>
+
+    </div>
+</div>
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('admin.layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH E:\Pandu-Projek\web-buku-main\resources\views/admin/products/index.blade.php ENDPATH**/ ?>

@@ -1,0 +1,8 @@
+[2025-08-18 06:17:11] local.WARNING: Failed admin login attempt {"username":"admin","ip":"127.0.0.1"} 
+[2025-08-18 06:19:55] local.WARNING: Failed admin login attempt {"username":"Admin","ip":"127.0.0.1"} 
+[2025-08-18 06:20:08] local.WARNING: Failed admin login attempt {"username":"Admin","ip":"127.0.0.1"} 
+[2025-08-18 06:21:22] local.WARNING: Failed admin login attempt {"username":"Admin","ip":"127.0.0.1"} 
+[2025-08-18 06:55:41] local.INFO: Admin logged out {"username":"admin","ip":"127.0.0.1"} 
+[2025-08-18 06:57:34] local.INFO: Admin logged out {"username":"pandu","ip":"127.0.0.1"} 
+[2025-08-18 06:58:05] local.INFO: Admin logged out {"username":"pandu","ip":"127.0.0.1"} 
+[2025-08-18 07:02:32] local.INFO: Admin logged out {"username":"pandu","ip":"127.0.0.1"} 

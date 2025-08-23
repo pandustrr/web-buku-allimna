@@ -1,0 +1,33 @@
+@import "tailwindcss";
+/* Animasi notifikasi */
+@keyframes slideIn {
+    from { transform: translateX(100%); }
+    to { transform: translateX(0); }
+}
+
+@keyframes slideOut {
+    from { transform: translateX(0); }
+    to { transform: translateX(100%); }
+}
+
+#notification {
+    transition: all 0.3s ease;
+}
+
+#notification.hidden {
+    animation: slideOut 0.3s forwards;
+}
+
+#notification:not(.hidden) {
+    animation: slideIn 0.3s forwards;
+}
+
+/* Animasi spinner */
+.fa-spin {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
