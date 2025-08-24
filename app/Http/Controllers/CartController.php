@@ -80,9 +80,10 @@ class CartController extends Controller
 
     public function update(Request $request, CartItem $item)
     {
-        if ($item->cart->user_id !== Auth::id()) {
-            abort(403, 'Akses tidak diizinkan.');
-        }
+        $item = CartItem::where('id', $item->id)
+            ->whereHas('cart', fn($q) => $q->where('user_id', Auth::id()))
+            ->with('product')
+            ->firstOrFail();
 
         $request->validate([
             'quantity' => 'required|integer|min:1|max:' . $item->product->stok
@@ -95,9 +96,9 @@ class CartController extends Controller
 
     public function destroy(CartItem $item)
     {
-        if ($item->cart->user_id !== Auth::id()) {
-            abort(403, 'Akses tidak diizinkan.');
-        }
+        $item = CartItem::where('id', $item->id)
+            ->whereHas('cart', fn($q) => $q->where('user_id', Auth::id()))
+            ->firstOrFail();
 
         $item->delete();
 

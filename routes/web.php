@@ -10,6 +10,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\AuthController;
+use App\Models\CartItem;
 use Illuminate\Support\Facades\Route;
 
 // Rute Publik (tanpa login)
@@ -26,17 +27,17 @@ Route::middleware('guest')->group(function () {
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 // Rute Pengguna (harus login)
-Route::middleware('auth')->group(function () {
+Route::middleware(['web', 'auth'])->group(function () {
     // Rute Keranjang
     Route::post('/produk/{product}/tambah-keranjang', [CartController::class, 'store'])->name('cart.add');
 
     Route::prefix('keranjang')->group(function () {
         Route::get('/', [CartController::class, 'index'])->name('cart.index');
-        Route::put('/{item}', [CartController::class, 'update'])->name('cart.update');
-        Route::delete('/{item}', [CartController::class, 'destroy'])->name('cart.remove');
+        Route::put('/update/{item}', [CartController::class, 'update'])->name('cart.update');
+        Route::delete('/hapus/{item}', [CartController::class, 'destroy'])->name('cart.remove'); // tetap POST
     });
 
-    Route::post('/keranjang/konfirmasi', [CartController::class, 'confirm'])->name('cart.confirm');
+    Route::post('/keranjang/id', [CartController::class, 'confirm'])->name('cart.confirm');
     Route::get('/terima-kasih', [CartController::class, 'thankYou'])->name('cart.thankyou');
 });
 
@@ -109,7 +110,5 @@ Route::prefix('admin')->group(function () {
             Route::put('password', [AdminAccountController::class, 'updatePassword'])
                 ->name('admin.account.change-password.update');
         });
-
     });
-
 });

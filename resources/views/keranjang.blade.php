@@ -55,7 +55,7 @@
                                                 <form action="{{ route('cart.update', $item) }}" method="POST"
                                                     class="flex items-center space-x-2">
                                                     @csrf
-                                                    @method('PUT')
+                                                    @method('PUT') 
 
                                                     <label for="quantity-{{ $item->id }}"
                                                         class="text-sm text-gray-600">Jumlah:</label>
@@ -71,7 +71,6 @@
                                                         <i class="fas fa-check text-sm"></i>
                                                     </button>
                                                 </form>
-
 
                                                 <form action="{{ route('cart.remove', $item) }}" method="POST">
                                                     @csrf
@@ -192,13 +191,17 @@
                 }
             }
 
+            // Fungsi untuk mendapatkan CSRF token dari meta tag
+            function getCsrfToken() {
+                return document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            }
+
             document.addEventListener('DOMContentLoaded', function() {
                 const whatsappBtn = document.getElementById('whatsappBtn');
 
                 whatsappBtn.addEventListener('click', function(e) {
                     e.preventDefault();
 
-                    // Validasi form
                     const name = document.getElementById('customer_name').value;
                     const pgtpq = document.getElementById('pgtpq').value;
                     const address = document.getElementById('address').value;
@@ -208,25 +211,31 @@
                         return;
                     }
 
-                    // Kirim request ke server untuk konfirmasi pesanan
-                    fetch('{{ route('cart.confirm') }}', {
+                    // Gunakan FormData untuk handling CSRF yang lebih mudah
+                    const formData = new FormData();
+                    formData.append('customer_name', name);
+                    formData.append('pgtpq', pgtpq);
+                    formData.append('address', address);
+                    formData.append('notes', document.getElementById('notes').value || '-');
+                    formData.append('_token', getCsrfToken());
+
+                    // Gunakan route name Laravel
+                    fetch("{{ route('cart.confirm') }}", {
                             method: 'POST',
                             headers: {
-                                'Content-Type': 'application/json',
                                 'Accept': 'application/json',
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                                'X-Requested-With': 'XMLHttpRequest'
                             },
-                            body: JSON.stringify({
-                                customer_name: name,
-                                pgtpq: pgtpq,
-                                address: address,
-                                notes: document.getElementById('notes').value || '-'
-                            })
+                            body: formData
                         })
-                        .then(response => response.json())
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Network response was not ok');
+                            }
+                            return response.json();
+                        })
                         .then(data => {
                             if (data.success) {
-                                // Buat pesan WhatsApp
                                 let message = `*PEMESANAN BUKU*\n\n`;
                                 message += `*DATA PEMESAN*\n`;
                                 message += `Nama Lengkap : ${name}\n`;
@@ -239,44 +248,35 @@
                                 @foreach ($cart->items as $item)
                                     message += `--------------------------------\n`;
                                     message += `*Judul Buku*  : {!! $item->product->judul !!}\n`;
-                                    message += `Harga Satuan  : Rp {!! number_format($item->product->harga, 0, ',', '.') !!}\n`;
-                                    message += `Jumlah        : {!! $item->quantity !!} buku\n`;
-                                    message += `Subtotal      : Rp {!! number_format($item->subtotal, 0, ',', '.') !!}\n`;
+                                    message +=
+                                        `Harga Satuan  : Rp {{ number_format($item->product->harga, 0, ',', '.') }}\n`;
+                                    message += `Jumlah        : {{ $item->quantity }} buku\n`;
+                                    message +=
+                                        `Subtotal      : Rp {{ number_format($item->subtotal, 0, ',', '.') }}\n`;
                                 @endforeach
 
-                                message += `\n*TOTAL PEMBAYARAN*: Rp {!! number_format($cart->total, 0, ',', '.') !!}\n\n`;
                                 message +=
-                                    `Mohon konfirmasi ketersediaan buku dan informasi total pembayaran termasuk ongkos kirim.\n`;
-                                message += `Terima kasih 🙏`;
+                                    `\n*TOTAL PEMBAYARAN*: Rp {{ number_format($cart->total, 0, ',', '.') }}\n\n`;
+                                message += `*Nomor Pesanan*: ${data.order_number}\n\n`;
+                                message +=
+                                    `Mohon konfirmasi ketersediaan stok dan estimasi pengiriman. Terima kasih.`;
 
-                                // Buka WhatsApp
-                                const encodedMessage = encodeURIComponent(message);
-                                window.open(`https://wa.me/6282316079651?text=${encodedMessage}`,
-                                    '_blank');
+                                const whatsappUrl =
+                                    `https://wa.me/6282316079651?text=${encodeURIComponent(message)}`;
+                                window.open(whatsappUrl, '_blank');
 
                                 // Redirect ke halaman terima kasih
-                                window.location.href = '{{ route('cart.thankyou') }}';
+                                window.location.href = "{{ route('cart.thankyou') }}";
                             } else {
-                                alert('Gagal memproses pesanan: ' + data.message);
+                                alert('Terjadi kesalahan: ' + (data.message || 'Silakan coba lagi.'));
                             }
                         })
                         .catch(error => {
                             console.error('Error:', error);
-                            alert('Terjadi kesalahan saat memproses pesanan');
+                            alert('Terjadi kesalahan saat mengirim data ke server. Silakan coba lagi.');
                         });
                 });
             });
         </script>
-    @else
-        <div class="min-h-screen bg-gray-50 flex items-center justify-center">
-            <div class="bg-white p-8 rounded-lg shadow-md text-center max-w-md">
-                <h2 class="text-2xl font-bold text-gray-800 mb-4">Anda perlu login</h2>
-                <p class="text-gray-600 mb-6">Silakan login terlebih dahulu untuk mengakses keranjang belanja</p>
-                <a href="{{ route('login') }}"
-                    class="inline-block bg-[#0ABAB5] text-white px-6 py-2 rounded-md hover:bg-[#56DFCF] transition">
-                    Login Sekarang
-                </a>
-            </div>
-        </div>
     @endauth
 @endsection

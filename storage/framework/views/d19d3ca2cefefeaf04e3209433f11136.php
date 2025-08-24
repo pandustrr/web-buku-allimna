@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>'Allimna - Buku</title>
+    <meta name="csrf-token" content="<?php echo e(csrf_token()); ?>">
 
     <!-- Favicon -->
     <link rel="icon" href="<?php echo e(asset('favicon.ico')); ?>" type="image/x-icon">
